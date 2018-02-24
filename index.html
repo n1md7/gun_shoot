@@ -4,7 +4,7 @@
 	<title></title>
 	<script type="text/javascript" src="https://bichiko.github.io/JavaScript-API/script.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.5.1/pixi.min.js"></script>
-	<style>* {padding: 0; margin: 0}</style>
+	<style>* {padding: 0; margin: 0; cursor: none;}</style>
 </head>
 <body>
 <script>
@@ -68,7 +68,7 @@ function hitTestRectangle(r1, r2) {
   return hit;
 };
 
-
+let sounds = new Array()
 // The application will create a renderer using WebGL, if possible,
 // with a fallback to a canvas render. It will also setup the ticker
 // and the root stage PIXI.Container
@@ -108,6 +108,9 @@ PIXI.loader
 			{ name:'aim', url: './Crosshair.png' },
 			{ name:'gun', url: './gunn/pic/gun_shoot.png' }
 		])
+	.add('reload', './gunn/sounds/reload.mp3')
+	.add('shoot', './gunn/sounds/shoot_1.mp3')
+	.add('balloon', './balloon.mp3')
 	.on("progress", (loader, resource) => {
 
 		loaderDiv.css({
@@ -121,10 +124,11 @@ PIXI.loader
 	}).load((loader, resources) => {
 		document.body.removeChild(document.querySelector('.loader'))
 
+
 		// create listener for mouse position
 		let mousePos = new Object()
 		document.body.addEventListener('mousemove', e => {
-			e = e || window.e;
+			e = e || window.e
 			if (e.pageX == null && e.clientX != null) {
 	            eventDoc = (e.target && e.target.ownerDocument) || document;
 	            doc = eventDoc.documentElement;
@@ -139,6 +143,7 @@ PIXI.loader
 	        }
 	        mousePos.x = e.pageX
 	        mousePos.y = e.pageY
+
 	        // aim.x = mousePos.x 
 	    	// aim.y = mousePos.y 
 		})
@@ -146,9 +151,9 @@ PIXI.loader
 		/* load background image and append stage */
 		let backImgOffsets = 100
 		let back = new PIXI.Sprite(resources.background.texture)
-			back.width = app.renderer.width + backImgOffsets
+			back.width  = app.renderer.width + backImgOffsets
 			back.height = app.renderer.height + backImgOffsets 
-			back.position.set(-backImgOffsets,-backImgOffsets)
+			back.position.set(-backImgOffsets, -backImgOffsets)
 		app.stage.addChild(back)
 
 	    let balloons = new Array(),	dimMap = new Array();
@@ -211,7 +216,14 @@ PIXI.loader
 
 	    // Listen for frame updates
 	    app.ticker.add(delta => {
-
+	    	// play sounds
+	    	sounds.forEach((x,i) => {
+	    		if(x.ended){
+	    			sounds.splice(i,1)
+	    		}else{
+	    			x.play()
+	    		}
+	    	})
 	    	// move player
 	    	playerGun.x = mousePos.x 
 
@@ -248,9 +260,12 @@ PIXI.loader
 	    /* end of the loop*/
 
 		J$('canvas').on('click', () => {
+			sounds.push(new Audio(resources.shoot.url))
 			balloons.forEach((e,i) => {
 	    		if(hitTestRectangle(e.obj, aim)){
-	    			console.log('yeaa')
+					sounds.push(new Audio(resources.balloon.url))
+
+	    			console.log('hit')
 	    			balloons.splice(i, 1)
 	    			app.stage.removeChild(e.obj)
 	    		}
@@ -259,6 +274,14 @@ PIXI.loader
 		})
 
 	});
+
+
+
+ 
+
+
+
+
 </script>
 </body>
 </html>
