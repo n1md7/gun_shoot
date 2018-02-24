@@ -6,7 +6,7 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.5.1/pixi.min.js"></script>
 	<style>* {padding: 0; margin: 0; cursor: none;}</style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 <script>
 function getRandom(min, max){
 	return Math.round(Math.random() * (max - min) + min)
@@ -68,7 +68,9 @@ function hitTestRectangle(r1, r2) {
   return hit;
 };
 
-let sounds = new Array(), lastShoot = Date.now(), reloading = false
+let sounds = new Array(), lastShoot = Date.now(), reloading = false, bullets = 3
+let SPS = 500 // shoot per second
+
 // The application will create a renderer using WebGL, if possible,
 // with a fallback to a canvas render. It will also setup the ticker
 // and the root stage PIXI.Container
@@ -256,6 +258,11 @@ PIXI.loader
 	    			balloons.splice(i, 1)
 	    			app.stage.removeChild(e.obj)
 	    			console.log(balloons)
+	    			let bln = new Audio(resources.balloon.url)
+					sounds.push({
+						name:'balloon',
+						obj: bln
+					})
 	    		}else{
 		    		e.obj.y-= e.obj.vy
 		    		e.obj.x-= e.obj.vx
@@ -263,6 +270,13 @@ PIXI.loader
 	    		}
 	    	})
 
+	    	if(bullets <= 0){
+				if(Date.now() - lastShoot > SPS){
+					lastShoot = Date.now()
+			    	reloading = true
+			    	bullets = 3
+				}
+			}
 
 	         // each frame we spin the bunny around a bit
 	        // bunny.rotation += 0.01;
@@ -270,7 +284,9 @@ PIXI.loader
 	    /* end of the loop*/
 
 		J$('canvas').on('click', () => {
-			if(Date.now() - lastShoot > 1000 && !reloading){
+			if(Date.now() - lastShoot > SPS && bullets>0 && !reloading){
+				bullets --
+				console.log('bullets',bullets)
 				lastShoot = Date.now()
 				let sht = new Audio(resources.shoot.url)
 				sounds.push({
@@ -281,7 +297,7 @@ PIXI.loader
 		    		if(hitTestRectangle(e.obj, aim)){
 		    			let bln = new Audio(resources.balloon.url)
 						sounds.push({
-							name:'shoot',
+							name:'balloon',
 							obj: bln
 						})
 
@@ -289,11 +305,9 @@ PIXI.loader
 		    			balloons.splice(i, 1)
 		    			app.stage.removeChild(e.obj)
 		    		}
-					// alert()
 				})
-				reloading = true
 			}else{
-
+				
 			}
 		})
 
