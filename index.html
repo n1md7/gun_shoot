@@ -68,7 +68,7 @@ function hitTestRectangle(r1, r2) {
   return hit;
 };
 
-let sounds = new Array()
+let sounds = new Array(), lastShoot = Date.now(), reloading = false
 // The application will create a renderer using WebGL, if possible,
 // with a fallback to a canvas render. It will also setup the ticker
 // and the root stage PIXI.Container
@@ -218,10 +218,20 @@ PIXI.loader
 	    app.ticker.add(delta => {
 	    	// play sounds
 	    	sounds.forEach((x,i) => {
-	    		if(x.ended){
+	    		if(x.name == 'reload' && x.obj.ended){
+					reloading = false	    			
+	    		}
+	    		if(x.obj.ended){
 	    			sounds.splice(i,1)
+	    			if(reloading){
+						let rld = new Audio(resources.reload.url)
+						sounds.push({
+							name:'reload',
+							obj: rld
+						})
+	    			}
 	    		}else{
-	    			x.play()
+	    			x.obj.play()
 	    		}
 	    	})
 	    	// move player
@@ -260,17 +270,31 @@ PIXI.loader
 	    /* end of the loop*/
 
 		J$('canvas').on('click', () => {
-			sounds.push(new Audio(resources.shoot.url))
-			balloons.forEach((e,i) => {
-	    		if(hitTestRectangle(e.obj, aim)){
-					sounds.push(new Audio(resources.balloon.url))
+			if(Date.now() - lastShoot > 1000 && !reloading){
+				lastShoot = Date.now()
+				let sht = new Audio(resources.shoot.url)
+				sounds.push({
+					name:'shoot',
+					obj: sht
+				})
+				balloons.forEach((e,i) => {
+		    		if(hitTestRectangle(e.obj, aim)){
+		    			let bln = new Audio(resources.balloon.url)
+						sounds.push({
+							name:'shoot',
+							obj: bln
+						})
 
-	    			console.log('hit')
-	    			balloons.splice(i, 1)
-	    			app.stage.removeChild(e.obj)
-	    		}
-				// alert()
-			})
+		    			console.log('hit')
+		    			balloons.splice(i, 1)
+		    			app.stage.removeChild(e.obj)
+		    		}
+					// alert()
+				})
+				reloading = true
+			}else{
+
+			}
 		})
 
 	});
