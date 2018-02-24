@@ -68,9 +68,9 @@ function hitTestRectangle(r1, r2) {
   return hit;
 };
 
-let sounds = new Array(), lastShoot = Date.now(), reloading = false, bullets = 3
+let sounds = new Array(), lastShoot = Date.now(), reloading = false, bullets = 3, texts = new Array(), socreBoard
 let SPS = 500 // shoot per second
-
+let score = 0
 // The application will create a renderer using WebGL, if possible,
 // with a fallback to a canvas render. It will also setup the ticker
 // and the root stage PIXI.Container
@@ -125,6 +125,12 @@ PIXI.loader
 
 	}).load((loader, resources) => {
 		document.body.removeChild(document.querySelector('.loader'))
+
+
+		
+
+		
+
 
 
 		// create listener for mouse position
@@ -216,8 +222,50 @@ PIXI.loader
 			aim.position.set(mousePos.x, mousePos.y)
 		app.stage.addChild(aim)
 
+		let style = new PIXI.TextStyle({
+		  fontFamily: "Arial",
+		  fontSize: 36,
+		  fill: "white",
+		  stroke: '#ff3300',
+		  strokeThickness: 4,
+		  dropShadow: true,
+		  dropShadowColor: "#000000",
+		  dropShadowBlur: 4,
+		  dropShadowAngle: Math.PI / 6,
+		  dropShadowDistance: 6,
+		});
+
+		socreBoard = new PIXI.Text("Score: 0", style);
+		socreBoard.position.set(20, 20);
+		app.stage.addChild(socreBoard);
+
+		/*******************************************************/
+
+		/* main loop of the game*/
 	    // Listen for frame updates
 	    app.ticker.add(delta => {
+	    	// update score
+			app.stage.removeChild(socreBoard);
+
+	    	socreBoard = new PIXI.Text(`Score: ${score}`, style);
+			socreBoard.position.set(20, 20);
+			app.stage.addChild(socreBoard);
+
+
+	    	texts.forEach((x,i) => {
+	    		if(Date.now() - x.displayed < 2000){
+		    		// let style = ;
+
+					// let styledMessage = ;
+					//Position it and add it to the stage
+					x.obj.position.set(x.x, x.y);
+					app.stage.addChild(x.obj)
+	    		}else{
+	    			texts.splice(i, 1)
+					app.stage.removeChild(x.obj)
+	    		}
+
+	    	})
 	    	// play sounds
 	    	sounds.forEach((x,i) => {
 	    		if(x.name == 'reload' && x.obj.ended){
@@ -255,6 +303,20 @@ PIXI.loader
   				e.obj.vy = e.vy
 	    		
 	    		if(e.obj.y <= 0){
+	    			score -= e.points
+	    			texts.push({
+	    				x: e.obj.x+e.obj.width/2,
+	    				y: e.obj.y+e.obj.height/2,
+	    				displayed: Date.now(),
+	    				obj: new PIXI.Text(`-${e.points}`, 
+	    					(new PIXI.TextStyle({
+								fontFamily: "Arial",
+								fontSize: 14,
+								fill: "red",
+								stroke: '#ff9900',
+								strokeThickness: 2
+							})))
+	    			})
 	    			balloons.splice(i, 1)
 	    			app.stage.removeChild(e.obj)
 	    			console.log(balloons)
@@ -289,6 +351,7 @@ PIXI.loader
 				console.log('bullets',bullets)
 				lastShoot = Date.now()
 				let sht = new Audio(resources.shoot.url)
+				sht.volume = 0.6
 				sounds.push({
 					name:'shoot',
 					obj: sht
@@ -300,6 +363,25 @@ PIXI.loader
 							name:'balloon',
 							obj: bln
 						})
+						score += e.points
+						texts.push({
+		    				x: e.obj.x+e.obj.width/2,
+		    				y: e.obj.y+e.obj.height/2,
+		    				displayed: Date.now(),
+		    				obj: new PIXI.Text(`+${e.points}`, 
+		    					(new PIXI.TextStyle({
+									fontFamily: "Arial",
+									fontSize: 14,
+									fill: "green",
+									stroke: '#ff9900',
+									strokeThickness: 2,
+									// dropShadow: true,
+									// dropShadowColor: "#000000",
+									// dropShadowBlur: 4,
+									// dropShadowAngle: Math.PI / 6,
+									// dropShadowDistance: 6,
+								})))
+		    			})
 
 		    			console.log('hit')
 		    			balloons.splice(i, 1)
