@@ -143,7 +143,7 @@ PIXI.loader
 			playerGun.width = app.renderer.width/6
 			playerGun.height = playerGun.width/2
 			// playerGun.position.set((app.renderer.width/2)+playerGun.width/2, app.renderer.width-playerGun.height)
-			playerGun.x = (app.renderer.width/2)-(playerGun.width/2)
+			playerGun.x = (app.renderer.width)-(playerGun.width/2)
 			// minus 20 px bydefault to use later moving
 			playerGun.y = app.renderer.height-playerGun.height+20
 		app.stage.addChild(playerGun)
@@ -170,14 +170,16 @@ PIXI.loader
 	    	back.y = -(backImgOffsets/(2) * (aim.y / app.renderer.height)) - (backImgOffsets/2)
 
 			/* move player gun by mouse pos */
-	    	playerGun.y = ((app.renderer.width/2)-(playerGun.width/2)) + (100*(aim.y / app.renderer.height))
+	    	playerGun.y = ((app.renderer.height)-(playerGun.height - playerGun.height/10)) + (100*(aim.y / app.renderer.height))
 
 	    	balloons.forEach((e,i) => {
 	    		e.obj.vx = e.vx
   				e.obj.vy = e.vy
 	    		
 	    		if(e.obj.y <= 0){
+	    			balloons.splice(i, 1)
 	    			app.stage.removeChild(e.obj)
+	    			console.log(balloons)
 	    		}else{
 		    		e.obj.y-= e.obj.vy
 		    		e.obj.x-= e.obj.vx
