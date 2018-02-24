@@ -1,0 +1,78 @@
+
+@font-face {
+    font-family: myfont;
+    src: url(font/BROADW.TTF);
+}
+body{
+    padding: 0;
+    margin:0;
+}
+.main_div{
+    position: relative;
+    margin: 6px auto;
+    width: 1120px;
+    height: 663px;
+    z-index: 1;
+    border: 0px solid black;
+    background-image: url('pic/shotingcenter.PNG');
+    background-size: 100%;
+    background-repeat: no-repeat;
+    cursor: none;
+    overflow: hidden;
+}
+
+.player{
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-image: url('pic/gun.png');
+    background-size: 100%;
+    border-radius: 25px;
+    border: 1px solid red;
+    top: 334px;
+    left: 180px;
+    cursor: none;
+    z-index: 3;
+}
+
+.gun{
+    position: absolute;
+    bottom: -62px;
+    left: 350px;
+    width: 350px;
+    height: 250px;
+    background-size: 100%;
+    background-image: url('pic/gun_shoot.png');
+    background-repeat: no-repeat;
+    transform: rotate(0deg);
+    z-index: 5;
+}
+
+.gun_shoot{
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background-image: url('pic/shoot_gun.png');
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position: -5px 19px;
+    top: -59px;
+    left: 83px;
+    z-index: 10;
+    display: none;
+}
+
+.all_bulet{
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    width: 342px;
+    height: 50px;
+}
+
+.bulet{
+    position: relative;
+    display: inline-block;
+    height: 100%;
+    width: 19px;
+}
