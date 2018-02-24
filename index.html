@@ -244,6 +244,18 @@ PIXI.loader
 		/* main loop of the game*/
 	    // Listen for frame updates
 	    app.ticker.add(delta => {
+	    	if(balloons.length == 0){
+	    		let style = new PIXI.TextStyle({
+				    fontFamily: "Futura",
+				    fontSize: 64,
+				    fill: "white"
+				  });
+				message = new PIXI.Text("The End!", style);
+				message.x = 120;
+				message.y = app.stage.height / 2 - 32;
+				app.stage.addChild(message);
+	    		return
+	    	}
 	    	// update score
 			app.stage.removeChild(socreBoard);
 
@@ -387,7 +399,6 @@ PIXI.loader
 				})
 				if(hitcounter == 0){
 					score -= 10
-					// console.log(app.renderer.width/2)
 						texts.push({
 		    				x: mousePos.x-20,
 		    				y: mousePos.y-10,
