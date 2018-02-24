@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<script type="text/javascript" src="https://bichiko.github.io/JavaScript-API/script.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.5.1/pixi.min.js"></script>
+	<style>* {padding: 0; margin: 0}</style>
+</head>
+<body>
+<script>
+function getRandom(min, max){
+	return Math.round(Math.random() * (max - min) + min)
+}
+function fill(num){
+	return Array.apply(null, Array(num)).map(function (_, i) {return i;});
+}
+// The application will create a renderer using WebGL, if possible,
+// with a fallback to a canvas render. It will also setup the ticker
+// and the root stage PIXI.Container
+const app = new PIXI.Application(/*{ 
+    width: 256,         // default: 800
+    height: 256,        // default: 600
+    antialias: true,    // default: false
+    transparent: false, // default: false
+    resolution: 1       // default: 1
+  }*/);
+
+app.renderer.view.style.position = "absolute";
+app.renderer.view.style.display = "block";
+app.renderer.autoResize = true;
+app.renderer.resize(window.innerWidth, window.innerHeight);
+// The application will create a canvas element for you that you
+// can then insert into the DOM
+document.body.appendChild(app.view);
+
+let loaderDiv = J$('body').append('div',{class:'loader'}).css({
+					'width':'0',
+					'height':'100%',
+					'z-index':'999',
+					'position':'fixed',
+					'top':'0',
+					'left':'0',
+					'transition':'all 0.2s',
+					'background':'rgba(115,0,0,0.4)'
+				});	
+
+// load the texture we need
+PIXI.loader
+	.add([
+			{ name:'background', url: './back.jpeg' },
+			{ name:'balloon_R', url: './gun/balloons/blue.png' },
+			{ name:'balloon_G', url: './gun/balloons/green.png' },
+			{ name:'balloon_B', url: './gun/balloons/orange.png' },
+			{ name:'aim', url: './Crosshair.png' },
+			{ name:'gun', url: './gun/pic/gun_shoot.png' }
+		])
+	.on("progress", (loader, resource) => {
+
+		loaderDiv.css({
+			width:`${loader.progress}%`
+		})
+		console.log("loading: " + resource.url); 
+		console.log("progress: " + loader.progress + "%"); 
+		console.log("loading: " + resource.name);
+	  
+
+	}).load((loader, resources) => {
+		document.body.removeChild(document.querySelector('.loader'))
+
+		// create listener for mouse position
+		let mousePos = new Object()
+		document.body.addEventListener('mousemove', e => {
+			e = e || window.e;
+			if (e.pageX == null && e.clientX != null) {
+	            eventDoc = (e.target && e.target.ownerDocument) || document;
+	            doc = eventDoc.documentElement;
+	            body = eventDoc.body;
+
+	            e.pageX = e.clientX +
+	              (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
+	              (doc && doc.clientLeft || body && body.clientLeft || 0);
+	            e.pageY = e.clientY +
+	              (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
+	              (doc && doc.clientTop  || body && body.clientTop  || 0 );
+	        }
+	        mousePos.x = e.pageX
+	        mousePos.y = e.pageY
+	        // aim.x = mousePos.x 
+	    	// aim.y = mousePos.y 
+		})
+
+		/* load background image and append stage */
+		let backImgOffsets = 100
+		let back = new PIXI.Sprite(resources.background.texture)
+			back.width = app.renderer.width + backImgOffsets
+			back.height = app.renderer.height + backImgOffsets 
+			back.position.set(-backImgOffsets,-backImgOffsets)
+		app.stage.addChild(back)
+
+	    let balloons = new Array(),	dimMap = new Array();
+
+		[20,40,60,80,100,120,140].forEach(x => {
+			dimMap.push( {
+				w: x, 
+				h: x / 0.81,
+				vx: getRandom(-1,1)*0.1*(x/50),
+				vy: 0.1*(x/10),
+				points: 200 - x
+			} )
+		})
+
+	    fill(30).forEach(i => {
+	    	let pickBalloon = undefined, tmpDims = 0
+	    	switch (i%3){
+	    		case 0: pickBalloon = resources.balloon_R.texture; break
+	    		case 1: pickBalloon = resources.balloon_G.texture; break
+	    		case 2: pickBalloon = resources.balloon_B.texture; break
+	    	}
+	    	let tmp = new PIXI.Sprite(pickBalloon), tmpMx, tmpMy
+	    	tmpDims = dimMap[getRandom(0, dimMap.length - 1)]
+	    	tmp.width = tmpDims.w
+	    	tmp.height = tmpDims.h
+	    	tmpMx = getRandom(0,app.renderer.width-tmp.width)
+	    	tmpMy = getRandom(app.renderer.height-app.renderer.height/5,app.renderer.height-app.renderer.height/2)
+	    	mousePos.x = tmpMx
+	    	mousePos.y = tmpMy
+	    	tmp.position.set(tmpMx, tmpMy)
+		    
+		    balloons.push({
+	    		obj: tmp,
+	    		vx: tmpDims.vx,
+	    		vy: tmpDims.vy,
+	    		points: tmpDims.points
+	    	})
+	    	tmp.vx = 0
+			tmp.vy = 0
+	    	app.stage.addChild(tmp)
+
+	    })
+
+	    /* load gun player image */
+	    let playerGun = new PIXI.Sprite(resources.gun.texture)
+			playerGun.width = app.renderer.width/6
+			playerGun.height = playerGun.width/2
+			// playerGun.position.set((app.renderer.width/2)+playerGun.width/2, app.renderer.width-playerGun.height)
+			playerGun.x = (app.renderer.width/2)-(playerGun.width/2)
+			// minus 20 px bydefault to use later moving
+			playerGun.y = app.renderer.height-playerGun.height+20
+		app.stage.addChild(playerGun)
+
+		/* load crosshair aim image and append to stage */
+		let aim = new PIXI.Sprite(resources.aim.texture)
+			aim.width = 50
+			aim.height = 50
+			aim.position.set(mousePos.x, mousePos.y)
+		app.stage.addChild(aim)
+
+	    // Listen for frame updates
+	    app.ticker.add(delta => {
+
+	    	// move player
+	    	playerGun.x = mousePos.x 
+
+	    	/* move aim img*/
+	    	aim.x = mousePos.x - aim.width/2
+	    	aim.y = mousePos.y - aim.height/2
+
+	    	/* move background by mouse pos */
+	    	back.x = -(backImgOffsets/(2) * (aim.x / app.renderer.width)) - (backImgOffsets/2)
+	    	back.y = -(backImgOffsets/(2) * (aim.y / app.renderer.height)) - (backImgOffsets/2)
+
+			/* move player gun by mouse pos */
+	    	playerGun.y = ((app.renderer.width/2)-(playerGun.width/2)) + (100*(aim.y / app.renderer.height))
+
+	    	balloons.forEach((e,i) => {
+	    		e.obj.vx = e.vx
+  				e.obj.vy = e.vy
+	    		
+	    		if(e.obj.y <= 0){
+	    			app.stage.removeChild(e.obj)
+	    		}else{
+		    		e.obj.y-= e.obj.vy
+		    		e.obj.x-= e.obj.vx
+		    		e.obj.rotation = -e.obj.vx
+	    		}
+	    	})
+	         // each frame we spin the bunny around a bit
+	        // bunny.rotation += 0.01;
+	    });
+	});
+</script>
+</body>
+</html>
