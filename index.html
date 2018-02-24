@@ -356,8 +356,10 @@ PIXI.loader
 					name:'shoot',
 					obj: sht
 				})
+				let hitcounter = 0
 				balloons.forEach((e,i) => {
 		    		if(hitTestRectangle(e.obj, aim)){
+		    			hitcounter ++
 		    			let bln = new Audio(resources.balloon.url)
 						sounds.push({
 							name:'balloon',
@@ -374,12 +376,7 @@ PIXI.loader
 									fontSize: 14,
 									fill: "green",
 									stroke: '#ff9900',
-									strokeThickness: 2,
-									// dropShadow: true,
-									// dropShadowColor: "#000000",
-									// dropShadowBlur: 4,
-									// dropShadowAngle: Math.PI / 6,
-									// dropShadowDistance: 6,
+									strokeThickness: 2
 								})))
 		    			})
 
@@ -388,9 +385,24 @@ PIXI.loader
 		    			app.stage.removeChild(e.obj)
 		    		}
 				})
-			}else{
-				
-			}
+				if(hitcounter == 0){
+					score -= 10
+					// console.log(app.renderer.width/2)
+						texts.push({
+		    				x: mousePos.x-20,
+		    				y: mousePos.y-10,
+		    				displayed: Date.now(),
+		    				obj: new PIXI.Text(`Missed`, 
+		    					(new PIXI.TextStyle({
+									fontFamily: "Arial",
+									fontSize: 14,
+									fill: "red",
+									stroke: '#ff9900',
+									strokeThickness: 2
+								})))
+		    			})
+				}
+			} 
 		})
 
 	});
