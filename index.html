@@ -15,7 +15,22 @@ function fill(num){
 	return Array.apply(null, Array(num)).map(function (_, i) {return i;});
 }
 
-
+function detectmob() { 
+ if( navigator.userAgent.match(/Android/i)
+ || navigator.userAgent.match(/webOS/i)
+ || navigator.userAgent.match(/iPhone/i)
+ || navigator.userAgent.match(/iPad/i)
+ || navigator.userAgent.match(/iPod/i)
+ || navigator.userAgent.match(/BlackBerry/i)
+ || navigator.userAgent.match(/Windows Phone/i)
+ ){
+    return true;
+  }
+ else {
+    return false;
+  }
+}
+ 
 //The `hitTestRectangle` function
 function hitTestRectangle(r1, r2) {
 
@@ -69,7 +84,7 @@ function hitTestRectangle(r1, r2) {
 };
 
 let sounds = new Array(), lastShoot = Date.now(), reloading = false,
- bullets = 10,
+ bullets = detectmob()?200:10,
  defaultBullets = 10,
  texts = new Array(), socreBoard, showBullets
 let SPS = 250 // shoot per second
@@ -219,9 +234,13 @@ PIXI.loader
 	    	})
 	    	tmp.vx = 0
 			tmp.vy = 0
-	    	app.stage.addChild(tmp)
-
 	    })
+
+	    balloons.sort(function(a, b){
+		    return a.vy - b.vy;
+		});
+		// balloons.reverse()
+		balloons.forEach(x => app.stage.addChild(x.obj))
 
 	    /* load gun player image */
 	    let playerGun = new PIXI.Sprite(resources.gun.texture)
@@ -235,8 +254,8 @@ PIXI.loader
 
 		/* load crosshair aim image and append to stage */
 		let aim = new PIXI.Sprite(resources.aim.texture)
-			aim.width = 50
-			aim.height = 50
+			aim.width = 25
+			aim.height = 25
 			aim.position.set(mousePos.x, mousePos.y)
 		app.stage.addChild(aim)
 
