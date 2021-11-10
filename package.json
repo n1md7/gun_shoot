@@ -1,0 +1,29 @@
+{
+  "name": "gun_shoot",
+  "version": "1.0.0",
+  "description": "Simple PIXI game",
+  "main": "sec/game.js",
+  "scripts": {
+    "format": "npx prettier --write .",
+    "serve": "npx http-server -o ./index.html ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/n1md7/gun_shoot.git"
+  },
+  "keywords": [
+    "Pixi",
+    "Game",
+    "Shooter"
+  ],
+  "author": "Harry Kodua (n1md7)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/n1md7/gun_shoot/issues"
+  },
+  "homepage": "https://github.com/n1md7/gun_shoot#readme",
+  "devDependencies": {
+    "http-server": "^14.0.0",
+    "prettier": "2.4.1"
+  }
+}
